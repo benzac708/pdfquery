@@ -1,38 +1,31 @@
-#!/usr/bin/env groovy
-
 pipeline {
     agent any
 
     environment {
-        DOCKER_IMAGE = "ghcr.io/${env.GIT_REPO_OWNER ?: 'ccep'}/ccep-rag:latest"
-        GIT_REPO_OWNER = sh(script: "echo ${env.GIT_URL} | sed -n 's|.*github.com/\\([^/]*\\).*|\\1|p'", returnStdout: true).trim()
+        DOCKER_IMAGE = "ghcr.io/benzac708/ccep-rag:latest"
     }
 
     stages {
-        stage('Install') {
+        stage('Lint') {
             steps {
-                sh 'pip install -e .'
+                sh 'pip install ruff -q'
+                sh 'ruff check ccep/'
             }
         }
 
         stage('Test') {
             steps {
-                sh 'python3 -c "from ccep.cli import main; print(\'CLI imports OK\')"'
-                sh 'python3 -c "from ccep.embedder import Embedder; print(\'Embedder imports OK\')"'
+                sh 'pip install -e . -q'
+                sh 'python3 -c "from ccep.cli import main; print(\"CLI imports OK\")"'
+                sh 'python3 -c "from ccep.embedder import Embedder; print(\"Embedder imports OK\")"'
             }
         }
 
-        stage('Docker Build') {
-            steps {
-                sh 'docker build -t ccep-rag:latest .'
-            }
-        }
-
-        stage('Push to GHCR') {
-            when { branch 'main' }
+        stage('Docker Build & Push') {
             steps {
                 withCredentials([string(credentialsId: 'GHCR_TOKEN', variable: 'TOKEN')]) {
-                    sh 'echo $TOKEN | docker login ghcr.io -u $GIT_REPO_OWNER --password-stdin'
+                    sh 'docker build -t ccep-rag:latest .'
+                    sh 'echo "$TOKEN" | docker login ghcr.io -u benzac708 --password-stdin'
                     sh "docker tag ccep-rag:latest ${DOCKER_IMAGE}"
                     sh "docker push ${DOCKER_IMAGE}"
                 }
@@ -40,18 +33,13 @@ pipeline {
         }
 
         stage('Deploy') {
-            when { branch 'main' }
             steps {
-                sh 'docker compose -f /app/docker-compose.yml pull'
-                sh 'docker compose -f /app/docker-compose.yml up -d'
+                sh 'echo "$GHCR_TOKEN" | docker login ghcr.io -u benzac708 --password-stdin'
+                sh 'docker-compose down || true'
+                sh 'docker-compose pull'
+                sh 'docker-compose up -d'
                 sh 'docker system prune -f'
             }
-        }
-    }
-
-    post {
-        failure {
-            echo "Pipeline failed. Check logs for details."
         }
     }
 }
