@@ -1,0 +1,14 @@
+services:
+  app:
+    build: .
+    ports:
+      - "8501:8501"
+    volumes:
+      - ./chroma_db:/app/chroma_db
+      - ./uploads:/app/uploads
+    env_file:
+      - .env
+    environment:
+      - EMBEDDING_PROVIDER=${EMBEDDING_PROVIDER:-local}
+      - CHROMA_DIR=/app/chroma_db
+      - UPLOAD_DIR=/app/uploads
