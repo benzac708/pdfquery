@@ -15,8 +15,8 @@ PDF question-answering app with a small CLI and Streamlit UI.
 - Python 3.12
 - Streamlit
 - PostgreSQL + pgvector
-- Cohere embeddings
-- Groq for answer generation
+- Cohere `embed-multilingual-v3.0` for embeddings
+- Groq `llama-3.3-70b-versatile` for answer generation
 - Docker + Docker Compose
 - Jenkins CI/CD
 - GHCR image registry
