@@ -16,9 +16,13 @@ pipeline {
         }
 
         stage('Lint') {
-            steps {
-                sh 'uvx ruff check --fix ccep/'
-                sh 'uvx ruff check ccep/'
+            parallel {
+                stage('Ruff Fix') {
+                    steps { sh 'uvx ruff check --fix ccep/' }
+                }
+                stage('Ruff Check') {
+                    steps { sh 'uvx ruff check ccep/' }
+                }
             }
         }
 
@@ -46,7 +50,6 @@ pipeline {
             steps {
                 sh 'IMAGE_TAG=${IMAGE_TAG} docker-compose -p ccep-rag -f /app/docker-compose.yml pull app'
                 sh 'IMAGE_TAG=${IMAGE_TAG} docker-compose -p ccep-rag -f /app/docker-compose.yml up -d --no-build'
-                sh 'docker system prune -f'
             }
         }
     }
