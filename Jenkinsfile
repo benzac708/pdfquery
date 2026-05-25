@@ -3,19 +3,20 @@ pipeline {
 
     environment {
         DOCKER_IMAGE = "ghcr.io/benzac708/ccep-rag:latest"
+        PIP_REQUIRE_VIRTUALENV = "0"
     }
 
     stages {
         stage('Lint') {
             steps {
-                sh 'pip install ruff -q'
+                sh 'pip install ruff -q --break-system-packages'
                 sh 'ruff check ccep/'
             }
         }
 
         stage('Test') {
             steps {
-                sh 'pip install -e . -q'
+                sh 'pip install -e . -q --break-system-packages'
                 sh 'python3 -c "from ccep.cli import main; print(\"CLI imports OK\")"'
                 sh 'python3 -c "from ccep.embedder import Embedder; print(\"Embedder imports OK\")"'
             }
@@ -35,9 +36,8 @@ pipeline {
         stage('Deploy') {
             steps {
                 sh 'echo "$GHCR_TOKEN" | docker login ghcr.io -u benzac708 --password-stdin'
-                sh 'docker-compose down || true'
-                sh 'docker-compose pull'
-                sh 'docker-compose up -d'
+                sh 'docker compose -f /app/docker-compose.yml down || true'
+                sh 'docker compose -f /app/docker-compose.yml up -d --build'
                 sh 'docker system prune -f'
             }
         }

@@ -21,12 +21,6 @@ credentials:
               scope: GLOBAL
               secret: ${GHCR_TOKEN}
               description: "GitHub Container Registry token"
-          - usernamePassword:
-              id: GIT_CREDS
-              scope: GLOBAL
-              username: benzac708
-              password: ${GHCR_TOKEN}
-              description: "GitHub PAT for repo clone"
 
 jobs:
   - script: >
@@ -35,19 +29,13 @@ jobs:
           cpsScm {
             scm {
               git {
-                remote {
-                  url('${GIT_REPO_URL}')
-                  credentials('GIT_CREDS')
-                }
+                remote { url('/app') }
                 branches('main')
                 scriptPath('Jenkinsfile')
               }
             }
             lightweight()
           }
-        }
-        triggers {
-          githubPush()
         }
       }
 

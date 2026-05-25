@@ -17,5 +17,6 @@ services:
       - GIT_REPO_URL=${GIT_REPO_URL}
       - JENKINS_URL=${JENKINS_URL:-http://localhost:8080/}
 
+
 volumes:
   jenkins_home:

@@ -2,14 +2,20 @@ FROM jenkins/jenkins:lts
 
 USER root
 
-RUN apt-get update && apt-get install -y --no-install-recommends docker-compose && \
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    python3 \
+    python3-pip \
+    python3-venv \
+    docker-compose && \
     rm -rf /var/lib/apt/lists/*
+
+RUN ln -sf python3 /usr/bin/python
 
 USER jenkins
 
 COPY --chown=jenkins:jenkins jenkins.yaml /var/jenkins_home/jenkins.yaml
 ENV CASC_JENKINS_CONFIG=/var/jenkins_home/jenkins.yaml
-ENV JAVA_OPTS="-Djenkins.install.runSetupWizard=false"
+ENV JAVA_OPTS="-Djenkins.install.runSetupWizard=false -Dhudson.plugins.git.GitSCM.ALLOW_LOCAL_CHECKOUT=true"
 
 RUN jenkins-plugin-cli --plugins \
   pipeline-stage-view \
