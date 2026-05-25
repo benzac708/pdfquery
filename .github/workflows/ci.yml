@@ -8,7 +8,7 @@ on:
 
 env:
   REGISTRY: ghcr.io
-  IMAGE_NAME: ${{ github.repository }}
+  IMAGE_NAME: ${{ github.event.repository.name }}
 
 jobs:
   test:
@@ -22,9 +22,9 @@ jobs:
 
       - run: pip install -e .
 
-      - run: python3 -c "from ccep.cli import main; print('CLI imports OK')"
+      - run: python3 -c "from pdfquery.cli import main; print('CLI imports OK')"
 
-      - run: python3 -c "from ccep.embedder import Embedder; print('Embedder imports OK')"
+      - run: python3 -c "from pdfquery.embedder import Embedder; print('Embedder imports OK')"
 
   docker:
     needs: test
@@ -73,7 +73,7 @@ jobs:
         run: |
           ssh "ubuntu@$VPS" "
             set -e
-            cd /home/ubuntu/Repos/ccep-rag
+            cd /home/ubuntu/Repos/pdfquery
             git pull
             docker-compose down || true
             docker-compose up -d --build --force-recreate

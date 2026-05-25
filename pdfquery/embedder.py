@@ -1,5 +1,5 @@
-from ccep.config import COHERE_API_KEY
-from ccep.models import Chunk
+from pdfquery.config import COHERE_API_KEY
+from pdfquery.models import Chunk
 
 
 class Embedder:

@@ -1,5 +1,5 @@
-from ccep.config import GROQ_API_KEY, TOP_K
-from ccep.vectordb import VectorDB
+from pdfquery.config import GROQ_API_KEY, TOP_K
+from pdfquery.vectordb import VectorDB
 from groq import Groq
 
 

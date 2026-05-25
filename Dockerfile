@@ -7,7 +7,7 @@ ENV PYTHONDONTWRITEBYTECODE=1 \
     PIP_DISABLE_PIP_VERSION_CHECK=1
 
 COPY setup.py .
-COPY ccep/ ccep/
+COPY pdfquery/ pdfquery/
 
 RUN pip install --no-cache-dir -e .
 

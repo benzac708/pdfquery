@@ -2,7 +2,7 @@ pipeline {
     agent any
 
     environment {
-      DOCKER_IMAGE = "ghcr.io/benzac708/ccep-rag:latest"
+      DOCKER_IMAGE = "ghcr.io/benzac708/pdfquery:latest"
       PIP_REQUIRE_VIRTUALENV = "0"
     }
 
@@ -18,10 +18,10 @@ pipeline {
         stage('Lint') {
             parallel {
                 stage('Ruff Fix') {
-                    steps { sh 'uvx ruff check --fix ccep/' }
+                    steps { sh 'uvx ruff check --fix pdfquery/' }
                 }
                 stage('Ruff Check') {
-                    steps { sh 'uvx ruff check ccep/' }
+                    steps { sh 'uvx ruff check pdfquery/' }
                 }
             }
         }
@@ -43,33 +43,33 @@ pipeline {
                 sh 'rm -rf .venv'
                 sh 'uv venv .venv'
                 sh 'uv pip install --python .venv/bin/python -e .'
-                sh '.venv/bin/python -c "from ccep.cli import main; print(\\\"CLI imports OK\\\")"'
-                sh '.venv/bin/python -c "from ccep.embedder import Embedder; print(\\\"Embedder imports OK\\\")"'
+                sh '.venv/bin/python -c "from pdfquery.cli import main; print(\\\"CLI imports OK\\\")"'
+                sh '.venv/bin/python -c "from pdfquery.embedder import Embedder; print(\\\"Embedder imports OK\\\")"'
             }
         }
 
         stage('Docker Build & Push') {
             steps {
-                sh 'docker build -t ccep-rag:${IMAGE_TAG} -t ccep-rag:latest .'
+                sh 'docker build -t pdfquery:${IMAGE_TAG} -t pdfquery:latest .'
                 sh '''
                   docker run --rm \
                     -v /var/run/docker.sock:/var/run/docker.sock \
                     -v "$HOME/.cache/trivy:/root/.cache/" \
                     aquasec/trivy:latest \
-                    image --no-progress --severity CRITICAL --exit-code 1 ccep-rag:${IMAGE_TAG}
+                    image --no-progress --severity CRITICAL --exit-code 1 pdfquery:${IMAGE_TAG}
                 '''
                 sh 'echo "$GHCR_TOKEN" | docker login ghcr.io -u benzac708 --password-stdin'
-                sh "docker tag ccep-rag:${IMAGE_TAG} ghcr.io/benzac708/ccep-rag:${IMAGE_TAG}"
-                sh "docker tag ccep-rag:latest ghcr.io/benzac708/ccep-rag:latest"
-                sh "docker push ghcr.io/benzac708/ccep-rag:${IMAGE_TAG}"
-                sh "docker push ghcr.io/benzac708/ccep-rag:latest"
+                sh "docker tag pdfquery:${IMAGE_TAG} ghcr.io/benzac708/pdfquery:${IMAGE_TAG}"
+                sh "docker tag pdfquery:latest ghcr.io/benzac708/pdfquery:latest"
+                sh "docker push ghcr.io/benzac708/pdfquery:${IMAGE_TAG}"
+                sh "docker push ghcr.io/benzac708/pdfquery:latest"
                 sh '''
                   COSIGN_PASSWORD="$COSIGN_PASSWORD" \
                   cosign sign --yes \
                     --key "$COSIGN_PRIVATE_KEY" \
                     -a git_commit=${IMAGE_TAG} \
-                    -a repository=benzac708/ccep-rag \
-                    ghcr.io/benzac708/ccep-rag:${IMAGE_TAG}
+                    -a repository=benzac708/pdfquery \
+                    ghcr.io/benzac708/pdfquery:${IMAGE_TAG}
                 '''
             }
         }
@@ -77,10 +77,10 @@ pipeline {
         stage('Deploy') {
             steps {
                 sh '''
-                  cosign verify --key "$COSIGN_PUBLIC_KEY" ghcr.io/benzac708/ccep-rag:${IMAGE_TAG}
+                  cosign verify --key "$COSIGN_PUBLIC_KEY" ghcr.io/benzac708/pdfquery:${IMAGE_TAG}
                 '''
-                sh 'IMAGE_TAG=${IMAGE_TAG} docker-compose -p ccep-rag -f /app/docker-compose.yml pull app'
-                sh 'IMAGE_TAG=${IMAGE_TAG} docker-compose -p ccep-rag -f /app/docker-compose.yml up -d --no-build'
+                sh 'IMAGE_TAG=${IMAGE_TAG} docker-compose -p pdfquery -f /app/docker-compose.yml pull app'
+                sh 'IMAGE_TAG=${IMAGE_TAG} docker-compose -p pdfquery -f /app/docker-compose.yml up -d --no-build'
             }
         }
 

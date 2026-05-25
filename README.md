@@ -1,4 +1,6 @@
-# CCEP-RAG
+# PDFQuery
+
+GitHub repo: `benzac708/pdfquery`
 
 PDF question-answering app with a small CLI and Streamlit UI.
 
@@ -35,8 +37,8 @@ streamlit run app.py
 ## CLI
 
 ```bash
-ccep ingest path/to/file.pdf
-ccep query "What does this say about X?"
+pdfquery ingest path/to/file.pdf
+pdfquery query "What does this say about X?"
 ```
 
 ## Docker

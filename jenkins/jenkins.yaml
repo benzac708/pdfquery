@@ -24,7 +24,7 @@ credentials:
 
 jobs:
   - script: >
-      pipelineJob('ccep-rag') {
+      pipelineJob('pdfquery') {
         definition {
           cpsScm {
             scm {

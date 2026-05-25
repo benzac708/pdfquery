@@ -2,12 +2,12 @@ import sys
 import shutil
 from pathlib import Path
 from tqdm import tqdm
-from ccep.extractor import extract_pdf
-from ccep.chunker import chunk_markdown
-from ccep.vectordb import VectorDB
-from ccep.rag import RAG
-from ccep.models import Document, generate_id
-from ccep.config import UPLOAD_DIR
+from pdfquery.extractor import extract_pdf
+from pdfquery.chunker import chunk_markdown
+from pdfquery.vectordb import VectorDB
+from pdfquery.rag import RAG
+from pdfquery.models import Document, generate_id
+from pdfquery.config import UPLOAD_DIR
 
 
 def cmd_ingest(pdf_path: str):
@@ -63,8 +63,8 @@ def cmd_query(question: str):
 def main():
     if len(sys.argv) < 2:
         print("Usage:")
-        print("  ccep ingest <pdf-file>")
-        print("  ccep query <question>")
+        print("  pdfquery ingest <pdf-file>")
+        print("  pdfquery query <question>")
         return 1
 
     cmd = sys.argv[1]

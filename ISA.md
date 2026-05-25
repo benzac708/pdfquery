@@ -1,7 +1,7 @@
 ---
 task: Swap ChromaDB → pgvector + proper CI/CD
-slug: ccep-pgvector-swap
-project: ccep-rag
+slug: pdfquery-pgvector-swap
+project: pdfquery
 effort: E4
 phase: observe
 progress: 0/32

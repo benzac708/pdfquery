@@ -1,7 +1,7 @@
-# ccep-rag — Project Context for AI Assistants
+# pdfquery — Project Context for AI Assistants
 
 ## Structure
-- `ccep/` — Python package: extractor, chunker, embedder, vectordb, rag, cli
+- `pdfquery/` — Python package: extractor, chunker, embedder, vectordb, rag, cli
 - `app.py` — Streamlit web GUI
 - `setup.py` — package install (`pip install -e .`)
 - `Dockerfile` + `docker-compose.yml` — containerized deployment
@@ -13,8 +13,8 @@
 - Docker Compose (app + pgvector), GH Actions CI/CD
 
 ## Commands
-- `ccep ingest <file.pdf>` — extract, chunk, embed, store
-- `ccep query <question>` — retrieve + answer via Groq
+- `pdfquery ingest <file.pdf>` — extract, chunk, embed, store
+- `pdfquery query <question>` — retrieve + answer via Groq
 - `streamlit run app.py` — web UI on :8501
 - `docker compose up` — full stack
 
@@ -25,7 +25,7 @@
 - Cohere is the only embedding provider — COHERE_API_KEY required
 
 ## Rules
-- No hardcoded paths — use `ccep/config.py` env vars
+- No hardcoded paths — use `pdfquery/config.py` env vars
 - No secrets in repo — use `.env` or K8s Secrets
 - Python type hints required on all functions
 - Keep Streamlit `app.py` under 100 lines

@@ -1,9 +1,9 @@
 from setuptools import setup
 
 setup(
-    name="ccep-rag",
+    name="pdfquery",
     version="0.1.0",
-    packages=["ccep"],
+    packages=["pdfquery"],
     install_requires=[
         "pdfplumber>=0.10",
         "psycopg2-binary>=2.9",
@@ -16,7 +16,7 @@ setup(
 
     entry_points={
         "console_scripts": [
-            "ccep=ccep.cli:main",
+            "pdfquery=pdfquery.cli:main",
         ],
     },
 )

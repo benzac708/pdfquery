@@ -1,15 +1,15 @@
 import streamlit as st
 import tempfile
 from pathlib import Path
-from ccep.extractor import extract_pdf
-from ccep.chunker import chunk_markdown
-from ccep.vectordb import VectorDB
-from ccep.rag import RAG
-from ccep.models import generate_id
+from pdfquery.extractor import extract_pdf
+from pdfquery.chunker import chunk_markdown
+from pdfquery.vectordb import VectorDB
+from pdfquery.rag import RAG
+from pdfquery.models import generate_id
 
-st.set_page_config(page_title="CCEP-RAG", page_icon="📄", layout="centered")
+st.set_page_config(page_title="PDFQuery", page_icon="📄", layout="centered")
 
-st.title("📄 CCEP-RAG")
+st.title("📄 PDFQuery")
 st.markdown("Upload a PDF, ask questions. RAG pipeline: extract → chunk → embed → retrieve → generate.")
 
 rag = RAG()

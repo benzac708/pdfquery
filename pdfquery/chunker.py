@@ -1,6 +1,6 @@
 import re
-from ccep.config import CHUNK_SIZE
-from ccep.models import Chunk
+from pdfquery.config import CHUNK_SIZE
+from pdfquery.models import Chunk
 
 
 def chunk_markdown(markdown: str, doc_id: str) -> list[Chunk]:

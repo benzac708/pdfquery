@@ -1,8 +1,8 @@
 import psycopg2
 import psycopg2.extras
-from ccep.config import DATABASE_URL
-from ccep.models import Chunk
-from ccep.embedder import Embedder
+from pdfquery.config import DATABASE_URL
+from pdfquery.models import Chunk
+from pdfquery.embedder import Embedder
 
 
 class VectorDB:
