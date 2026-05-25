@@ -10,7 +10,7 @@ pipeline {
         stage('Lint') {
             steps {
                 sh 'pip install ruff -q --break-system-packages'
-                sh 'ruff check ccep/'
+                sh 'python3 -m ruff check ccep/'
             }
         }
 
@@ -36,8 +36,8 @@ pipeline {
         stage('Deploy') {
             steps {
                 sh 'echo "$GHCR_TOKEN" | docker login ghcr.io -u benzac708 --password-stdin'
-                sh 'docker compose -f /app/docker-compose.yml down || true'
-                sh 'docker compose -f /app/docker-compose.yml up -d --build'
+                sh 'docker-compose -f /app/docker-compose.yml down || true'
+                sh 'docker-compose -f /app/docker-compose.yml up -d --build'
                 sh 'docker system prune -f'
             }
         }
