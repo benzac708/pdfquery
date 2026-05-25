@@ -4,13 +4,16 @@ WORKDIR /app
 
 ENV PYTHONDONTWRITEBYTECODE=1 \
     PYTHONUNBUFFERED=1 \
-    PIP_DISABLE_PIP_VERSION_CHECK=1
+    PIP_DISABLE_PIP_VERSION_CHECK=1 \
+    VIRTUAL_ENV=/opt/venv \
+    PATH="/opt/venv/bin:$PATH"
 
 COPY setup.py .
 COPY ccep/ ccep/
 
-RUN pip install --no-cache-dir uv && \
-    uv pip install --system --no-cache -e .
+RUN pip install --no-cache-dir --break-system-packages uv && \
+    uv venv /opt/venv && \
+    uv pip install --python /opt/venv/bin/python -e .
 
 COPY app.py .
 
