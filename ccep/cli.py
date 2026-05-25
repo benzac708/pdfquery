@@ -16,29 +16,30 @@ def cmd_ingest(pdf_path: str):
         print(f"❌ File not found: {pdf_path}")
         return 1
 
-    with tqdm(total=4, desc="📄 Ingesting", unit="step") as pbar:
-        pbar.set_description(f"📄 Extracting: {path.name}")
-        pbar.update(0)
+    print(f"📄 {path.name}:", end="", flush=True)
+    total_pages = [0]
+    def on_page(n, total):
+        if total_pages[0] != total:
+            total_pages[0] = total
+            print(f" {total} pages", end="", flush=True)
+    markdown = extract_pdf(str(path), on_page=on_page)
+    word_count = len(markdown.split())
+    print(f", {word_count} words")
 
-        markdown = extract_pdf(str(path))
-        word_count = len(markdown.split())
-        pbar.set_postfix_str(f"{word_count} words")
-        pbar.update(1)
-
+    with tqdm(total=3, desc="✂️  Chunking → embedding → storing", unit="step", leave=False) as pbar:
         doc_id = generate_id(markdown)
         doc = Document(id=doc_id, title=path.stem, filename=path.name, markdown=markdown, checksum=doc_id)
-        pbar.set_description("✂️  Chunking")
         pbar.update(1)
 
         doc.chunks = chunk_markdown(markdown, doc_id)
         pbar.set_postfix_str(f"{len(doc.chunks)} chunks")
-        pbar.set_description("🧠 Embedding + storing")
         pbar.update(1)
 
         db = VectorDB()
         db.ingest(doc.chunks)
-        pbar.set_description("✅ Done")
         pbar.update(1)
+
+    print(f"✅ Done — {len(doc.chunks)} chunks indexed")
 
     uploads = Path(UPLOAD_DIR)
     uploads.mkdir(parents=True, exist_ok=True)

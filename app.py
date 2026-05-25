@@ -22,26 +22,35 @@ if "doc_ingested" not in st.session_state:
 uploaded_file = st.file_uploader("Upload a PDF", type=["pdf"])
 
 if uploaded_file and not st.session_state.doc_ingested:
-    progress = st.progress(0, text="Saving uploaded file...")
+    status = st.status("Indexing PDF...", expanded=True)
 
     with tempfile.NamedTemporaryFile(delete=False, suffix=".pdf") as f:
         f.write(uploaded_file.getvalue())
         pdf_path = f.name
 
-    progress.progress(25, text="Extracting text from PDF...")
-    markdown = extract_pdf(pdf_path)
+    status.write("📄 Extracting pages...")
+    page_count = [0]
+    def track_page(n, total):
+        if page_count[0] != total:
+            page_count[0] = total
+        if n % max(1, total // 10) == 0 or n == total:
+            status.write(f"📄 Page {n}/{total}...")
+    markdown = extract_pdf(pdf_path, on_page=track_page)
+    status.write(f"📄 Extracted {len(markdown.split())} words from {page_count[0]} pages")
 
-    progress.progress(50, text=f"Chunking {len(markdown.split())} words...")
+    status.write("✂️  Chunking...")
     doc_id = generate_id(markdown)
     chunks = chunk_markdown(markdown, doc_id)
+    status.write(f"✂️  {len(chunks)} chunks created")
 
-    progress.progress(75, text=f"Embedding {len(chunks)} chunks via Cohere and storing in vector DB...")
+    status.write("🧠 Embedding via Cohere + storing in vector DB...")
     db = VectorDB()
     db.ingest(chunks)
 
     Path(pdf_path).unlink(missing_ok=True)
     st.session_state.doc_ingested = True
-    progress.progress(100, text="✅ Done!")
+    status.write("✅ Done!")
+    status.update(state="complete", label=f"✅ Indexed: {len(chunks)} chunks")
     st.success(f"✅ Document indexed: {len(chunks)} chunks")
 
 for msg in st.session_state.messages:
