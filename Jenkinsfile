@@ -89,7 +89,7 @@ pipeline {
             steps {
                 sh '''
                   for i in $(seq 1 10); do
-                    if curl -fsS http://127.0.0.1:8501/_stcore/health >/dev/null; then
+                    if docker run --rm --network host curlimages/curl:latest -fsS http://127.0.0.1:8501/_stcore/health >/dev/null 2>&1; then
                       exit 0
                     fi
                     sleep 3
