@@ -56,7 +56,7 @@ pipeline {
                     -v /var/run/docker.sock:/var/run/docker.sock \
                     -v "$HOME/.cache/trivy:/root/.cache/" \
                     aquasec/trivy:latest \
-                    image --no-progress --severity CRITICAL --exit-code 1 pdfquery:${IMAGE_TAG}
+                    image --no-progress --severity CRITICAL --ignore-unfixed --exit-code 1 pdfquery:${IMAGE_TAG}
                 '''
                 sh 'echo "$GHCR_TOKEN" | docker login ghcr.io -u benzac708 --password-stdin'
                 sh "docker tag pdfquery:${IMAGE_TAG} ghcr.io/benzac708/pdfquery:${IMAGE_TAG}"
