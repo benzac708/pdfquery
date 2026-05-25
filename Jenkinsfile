@@ -34,8 +34,8 @@ pipeline {
 
         stage('Deploy') {
             steps {
-                sh 'docker-compose -f /app/docker-compose.yml down || true'
-                sh 'docker-compose -f /app/docker-compose.yml up -d --build'
+                sh 'docker-compose -p ccep-rag -f /app/docker-compose.yml down || true'
+                sh 'docker-compose -p ccep-rag -f /app/docker-compose.yml up -d --build'
                 sh 'docker system prune -f'
             }
         }
