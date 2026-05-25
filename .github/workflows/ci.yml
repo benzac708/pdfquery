@@ -43,19 +43,16 @@ jobs:
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
-      - uses: docker/setup-qemu-action@v3
-
       - uses: docker/setup-buildx-action@v3
 
       - uses: docker/build-push-action@v6
         with:
           context: .
-          platforms: linux/amd64,linux/arm64
           push: true
           tags: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:latest
 
   deploy:
-    needs: docker
+    needs: test
     if: github.ref == 'refs/heads/main'
     runs-on: ubuntu-latest
 
@@ -70,16 +67,14 @@ jobs:
           chmod 600 ~/.ssh/id_ed25519
           ssh-keyscan -H "$VPS" >> ~/.ssh/known_hosts
 
-      - name: Pull and restart on VPS
+      - name: Build and restart on VPS
         env:
           VPS: ${{ secrets.VPS_HOST }}
-          GHCR_PAT: ${{ secrets.GHCR_PAT }}
         run: |
-          echo "$GHCR_PAT" | ssh "ubuntu@$VPS" "
+          ssh "ubuntu@$VPS" "
             set -e
-            docker login ghcr.io -u benzac708 --password-stdin
             cd /home/ubuntu/Repos/ccep-rag
-            docker-compose pull
-            docker-compose up -d
+            git pull
+            docker-compose up -d --build
             docker system prune -f
           "
