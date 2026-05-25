@@ -10,7 +10,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     docker-compose && \
     rm -rf /var/lib/apt/lists/*
 
-RUN python3 -m pip install --no-cache-dir uv
+RUN python3 -m pip install --no-cache-dir --break-system-packages uv
 
 RUN ln -sf python3 /usr/bin/python
 
