@@ -10,6 +10,7 @@ pipeline {
         stage('Lint') {
             steps {
                 sh 'pip install ruff -q --break-system-packages'
+                sh 'python3 -m ruff check --fix ccep/'
                 sh 'python3 -m ruff check ccep/'
             }
         }
