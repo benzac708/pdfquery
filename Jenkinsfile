@@ -24,9 +24,10 @@ pipeline {
 
         stage('Test') {
             steps {
-                sh 'uv pip install --user -e .'
-                sh 'python3 -c "from ccep.cli import main; print(\\\"CLI imports OK\\\")"'
-                sh 'python3 -c "from ccep.embedder import Embedder; print(\\\"Embedder imports OK\\\")"'
+                sh 'uv venv .venv'
+                sh 'uv pip install --python .venv/bin/python -e .'
+                sh '.venv/bin/python -c "from ccep.cli import main; print(\\\"CLI imports OK\\\")"'
+                sh '.venv/bin/python -c "from ccep.embedder import Embedder; print(\\\"Embedder imports OK\\\")"'
             }
         }
 
