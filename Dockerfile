@@ -1,4 +1,3 @@
-# syntax=docker/dockerfile:1
 FROM python:3.12-slim-bookworm@sha256:93ab4b7fa528b25124c97bcc755415e60eb671a86b4dbe0328df2fe2d1c1193d
 
 WORKDIR /app
@@ -15,9 +14,8 @@ ENV PYTHONDONTWRITEBYTECODE=1 \
 COPY setup.py .
 COPY pdfquery/ pdfquery/
 
-# Install deps with persistent BuildKit cache — skips re-download on subsequent builds
-RUN --mount=type=cache,target=/root/.cache/uv \
-    uv pip install --system -e .
+# uv is 3-5x faster than pip due to parallel resolution + Rust-native downloader
+RUN uv pip install --system -e .
 
 COPY app.py .
 
