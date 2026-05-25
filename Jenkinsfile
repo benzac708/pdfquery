@@ -9,7 +9,7 @@ pipeline {
     stages {
         stage('Lint') {
             steps {
-                sh 'pip install ruff -q --break-system-packages'
+                sh 'uv pip install --system ruff'
                 sh 'python3 -m ruff check --fix ccep/'
                 sh 'python3 -m ruff check ccep/'
             }
@@ -17,7 +17,7 @@ pipeline {
 
         stage('Test') {
             steps {
-                sh 'pip install -e . -q --break-system-packages'
+                sh 'uv pip install --system -e .'
                 sh 'python3 -c "from ccep.cli import main; print(\\\"CLI imports OK\\\")"'
                 sh 'python3 -c "from ccep.embedder import Embedder; print(\\\"Embedder imports OK\\\")"'
             }
