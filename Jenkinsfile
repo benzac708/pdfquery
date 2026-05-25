@@ -2,7 +2,6 @@ pipeline {
     agent any
 
     environment {
-        DOCKER_IMAGE = "ghcr.io/benzac708/ccep-rag:latest"
         PIP_REQUIRE_VIRTUALENV = "0"
     }
 
@@ -23,20 +22,8 @@ pipeline {
             }
         }
 
-        stage('Docker Build & Push') {
-            steps {
-                withCredentials([string(credentialsId: 'GHCR_TOKEN', variable: 'TOKEN')]) {
-                    sh 'docker build -t ccep-rag:latest .'
-                    sh 'echo "$TOKEN" | docker login ghcr.io -u benzac708 --password-stdin'
-                    sh "docker tag ccep-rag:latest ${DOCKER_IMAGE}"
-                    sh "docker push ${DOCKER_IMAGE}"
-                }
-            }
-        }
-
         stage('Deploy') {
             steps {
-                sh 'echo "$GHCR_TOKEN" | docker login ghcr.io -u benzac708 --password-stdin'
                 sh 'docker-compose -f /app/docker-compose.yml down || true'
                 sh 'docker-compose -f /app/docker-compose.yml up -d --build'
                 sh 'docker system prune -f'

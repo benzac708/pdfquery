@@ -11,6 +11,9 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 
 RUN ln -sf python3 /usr/bin/python
 
+# Match host docker group GID for socket access
+RUN groupadd -g 121 docker && usermod -aG docker jenkins
+
 USER jenkins
 
 COPY --chown=jenkins:jenkins jenkins.yaml /var/jenkins_home/jenkins.yaml
