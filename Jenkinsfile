@@ -17,15 +17,14 @@ pipeline {
 
         stage('Lint') {
             steps {
-                sh 'uv pip install --system ruff'
-                sh 'python3 -m ruff check --fix ccep/'
-                sh 'python3 -m ruff check ccep/'
+                sh 'uvx ruff check --fix ccep/'
+                sh 'uvx ruff check ccep/'
             }
         }
 
         stage('Test') {
             steps {
-                sh 'uv pip install --system -e .'
+                sh 'uv pip install --system --break-system-packages -e .'
                 sh 'python3 -c "from ccep.cli import main; print(\\\"CLI imports OK\\\")"'
                 sh 'python3 -c "from ccep.embedder import Embedder; print(\\\"Embedder imports OK\\\")"'
             }
