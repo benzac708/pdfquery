@@ -2,11 +2,19 @@ pipeline {
     agent any
 
     environment {
-        DOCKER_IMAGE = "ghcr.io/benzac708/ccep-rag:latest"
-        PIP_REQUIRE_VIRTUALENV = "0"
+      DOCKER_IMAGE = "ghcr.io/benzac708/ccep-rag:latest"
+      PIP_REQUIRE_VIRTUALENV = "0"
     }
 
     stages {
+        stage('Prepare') {
+            steps {
+                script {
+                    env.IMAGE_TAG = sh(script: 'git rev-parse --short=12 HEAD', returnStdout: true).trim()
+                }
+            }
+        }
+
         stage('Lint') {
             steps {
                 sh 'uv pip install --system ruff'
@@ -25,17 +33,19 @@ pipeline {
 
         stage('Docker Build & Push') {
             steps {
-                sh 'docker build -t ccep-rag:latest .'
+                sh 'docker build -t ccep-rag:${IMAGE_TAG} -t ccep-rag:latest .'
                 sh 'echo "$GHCR_TOKEN" | docker login ghcr.io -u benzac708 --password-stdin'
-                sh "docker tag ccep-rag:latest ${DOCKER_IMAGE}"
-                sh "docker push ${DOCKER_IMAGE}"
+                sh "docker tag ccep-rag:${IMAGE_TAG} ghcr.io/benzac708/ccep-rag:${IMAGE_TAG}"
+                sh "docker tag ccep-rag:latest ghcr.io/benzac708/ccep-rag:latest"
+                sh "docker push ghcr.io/benzac708/ccep-rag:${IMAGE_TAG}"
+                sh "docker push ghcr.io/benzac708/ccep-rag:latest"
             }
         }
 
         stage('Deploy') {
             steps {
-                sh 'docker-compose -p ccep-rag -f /app/docker-compose.yml down || true'
-                sh 'docker-compose -p ccep-rag -f /app/docker-compose.yml up -d --build'
+                sh 'IMAGE_TAG=${IMAGE_TAG} docker-compose -p ccep-rag -f /app/docker-compose.yml pull app'
+                sh 'IMAGE_TAG=${IMAGE_TAG} docker-compose -p ccep-rag -f /app/docker-compose.yml up -d --no-build'
                 sh 'docker system prune -f'
             }
         }
