@@ -75,6 +75,7 @@ jobs:
             set -e
             cd /home/ubuntu/Repos/ccep-rag
             git pull
-            docker-compose up -d --build
+            docker-compose down || true
+            docker-compose up -d --build --force-recreate
             docker system prune -f
           "
