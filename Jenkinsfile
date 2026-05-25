@@ -18,8 +18,8 @@ pipeline {
         stage('Test') {
             steps {
                 sh 'pip install -e . -q --break-system-packages'
-                sh 'python3 -c "from ccep.cli import main; print(\"CLI imports OK\")"'
-                sh 'python3 -c "from ccep.embedder import Embedder; print(\"Embedder imports OK\")"'
+                sh 'python3 -c "from ccep.cli import main; print(\\\"CLI imports OK\\\")"'
+                sh 'python3 -c "from ccep.embedder import Embedder; print(\\\"Embedder imports OK\\\")"'
             }
         }
 
