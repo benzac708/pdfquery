@@ -1,5 +1,5 @@
 import re
-from ccep.config import CHUNK_SIZE, CHUNK_OVERLAP
+from ccep.config import CHUNK_SIZE
 from ccep.models import Chunk
 
 
