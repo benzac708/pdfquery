@@ -7,10 +7,10 @@
 - `Dockerfile` + `docker-compose.yml` — containerized deployment
 
 ## Stack
-- Python 3.12, Streamlit, pdfplumber, Chroma DB
+- Python 3.12, Streamlit, pdfplumber, pgvector (PostgreSQL)
 - Embeddings: Cohere API v3
 - LLM: Groq API (Llama 3.3 70B)
-- Docker, Jenkins (Jenkinsfile), k3s/Helm (optional)
+- Docker Compose (app + pgvector), GH Actions CI/CD
 
 ## Commands
 - `ccep ingest <file.pdf>` — extract, chunk, embed, store

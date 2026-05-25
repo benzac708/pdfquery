@@ -6,7 +6,7 @@ setup(
     packages=["ccep"],
     install_requires=[
         "pdfplumber>=0.10",
-        "chromadb>=0.4",
+        "psycopg2-binary>=2.9",
         "cohere>=5.0",
         "groq>=0.8",
         "streamlit>=1.28",

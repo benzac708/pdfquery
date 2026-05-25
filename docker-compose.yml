@@ -1,14 +1,33 @@
 services:
+  db:
+    image: pgvector/pgvector:0.8.0-pg17
+    environment:
+      POSTGRES_USER: ccep
+      POSTGRES_PASSWORD: ccep
+      POSTGRES_DB: ccep
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ccep"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
   app:
     image: ghcr.io/benzac708/ccep-rag:latest
     build: .
     ports:
       - "8501:8501"
     volumes:
-      - ./chroma_db:/app/chroma_db
       - ./uploads:/app/uploads
     env_file:
       - .env
+    depends_on:
+      db:
+        condition: service_healthy
     environment:
-      - CHROMA_DIR=/app/chroma_db
+      - DATABASE_URL=postgresql://ccep:ccep@db:5432/ccep
       - UPLOAD_DIR=/app/uploads
+
+volumes:
+  pgdata:
