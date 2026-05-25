@@ -79,6 +79,7 @@ pipeline {
                 sh '''
                   cosign verify --key "$COSIGN_PUBLIC_KEY" ghcr.io/benzac708/pdfquery:${IMAGE_TAG}
                 '''
+                sh 'IMAGE_TAG=${IMAGE_TAG} docker-compose -p pdfquery -f /app/docker-compose.yml down --remove-orphans || true'
                 sh 'IMAGE_TAG=${IMAGE_TAG} docker-compose -p pdfquery -f /app/docker-compose.yml pull app'
                 sh 'IMAGE_TAG=${IMAGE_TAG} docker-compose -p pdfquery -f /app/docker-compose.yml up -d --no-build'
             }
