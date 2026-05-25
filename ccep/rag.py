@@ -14,9 +14,9 @@ class RAG:
             return {"answer": "No documents ingested yet. Upload a PDF first.", "sources": []}
 
         context = "\n\n".join(f"[{c['heading']}]: {c['text'][:2000]}" for c in chunks)
-        prompt = f"""Answer the question based ONLY on the context below. If the context doesn't contain the answer, say "I don't have enough information to answer this."
+        prompt = f"""You are a helpful assistant answering questions about uploaded documents. Use the context below as your primary source. If the context doesn't contain enough detail, you may use your general knowledge to supplement, but clearly indicate what comes from the document vs what you're adding.
 
-Context:
+Context from the document:
 {context}
 
 Question: {question}"""

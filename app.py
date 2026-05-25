@@ -22,21 +22,27 @@ if "doc_ingested" not in st.session_state:
 uploaded_file = st.file_uploader("Upload a PDF", type=["pdf"])
 
 if uploaded_file and not st.session_state.doc_ingested:
-    with st.spinner("Extracting and indexing..."):
-        with tempfile.NamedTemporaryFile(delete=False, suffix=".pdf") as f:
-            f.write(uploaded_file.getvalue())
-            pdf_path = f.name
+    progress = st.progress(0, text="Saving uploaded file...")
 
-        markdown = extract_pdf(pdf_path)
-        doc_id = generate_id(markdown)
-        chunks = chunk_markdown(markdown, doc_id)
+    with tempfile.NamedTemporaryFile(delete=False, suffix=".pdf") as f:
+        f.write(uploaded_file.getvalue())
+        pdf_path = f.name
 
-        db = VectorDB()
-        db.ingest(chunks)
+    progress.progress(25, text="Extracting text from PDF...")
+    markdown = extract_pdf(pdf_path)
 
-        Path(pdf_path).unlink(missing_ok=True)
-        st.session_state.doc_ingested = True
-        st.success(f"✅ Document indexed: {len(chunks)} chunks")
+    progress.progress(50, text=f"Chunking {len(markdown.split())} words...")
+    doc_id = generate_id(markdown)
+    chunks = chunk_markdown(markdown, doc_id)
+
+    progress.progress(75, text=f"Embedding {len(chunks)} chunks via Cohere and storing in vector DB...")
+    db = VectorDB()
+    db.ingest(chunks)
+
+    Path(pdf_path).unlink(missing_ok=True)
+    st.session_state.doc_ingested = True
+    progress.progress(100, text="✅ Done!")
+    st.success(f"✅ Document indexed: {len(chunks)} chunks")
 
 for msg in st.session_state.messages:
     with st.chat_message(msg["role"]):

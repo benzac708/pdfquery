@@ -11,6 +11,7 @@ setup(
         "groq>=0.8",
         "streamlit>=1.28",
         "pyyaml>=6.0",
+        "tqdm>=4.65",
     ],
 
     entry_points={
