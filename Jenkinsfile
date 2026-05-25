@@ -28,6 +28,7 @@ pipeline {
 
         stage('Test') {
             steps {
+                sh 'rm -rf .venv'
                 sh 'uv venv .venv'
                 sh 'uv pip install --python .venv/bin/python -e .'
                 sh '.venv/bin/python -c "from ccep.cli import main; print(\\\"CLI imports OK\\\")"'
