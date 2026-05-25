@@ -53,5 +53,19 @@ pipeline {
                 sh 'IMAGE_TAG=${IMAGE_TAG} docker-compose -p ccep-rag -f /app/docker-compose.yml up -d --no-build'
             }
         }
+
+        stage('Smoke Test') {
+            steps {
+                sh '''
+                  for i in $(seq 1 10); do
+                    if curl -fsS http://127.0.0.1:8501/_stcore/health >/dev/null; then
+                      exit 0
+                    fi
+                    sleep 3
+                  done
+                  exit 1
+                '''
+            }
+        }
     }
 }
