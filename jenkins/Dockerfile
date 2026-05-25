@@ -11,6 +11,8 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     rm -rf /var/lib/apt/lists/*
 
 RUN python3 -m pip install --no-cache-dir --break-system-packages uv
+RUN curl -fsSL https://github.com/sigstore/cosign/releases/download/v3.0.6/cosign-linux-arm64 -o /usr/local/bin/cosign && \
+    chmod +x /usr/local/bin/cosign
 
 RUN ln -sf python3 /usr/bin/python
 

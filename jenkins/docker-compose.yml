@@ -11,12 +11,16 @@ services:
       - /var/run/docker.sock:/var/run/docker.sock
       - /usr/bin/docker:/usr/bin/docker
       - /home/ubuntu/Repos/ccep-rag:/app
+      - ./cosign:/var/jenkins_home/cosign
       - ./jenkins.yaml:/var/jenkins_home/jenkins.yaml
     environment:
       - JENKINS_ADMIN_PASSWORD=${JENKINS_ADMIN_PASSWORD:-admin123}
       - GHCR_TOKEN=${GHCR_TOKEN}
       - GIT_REPO_URL=${GIT_REPO_URL}
       - JENKINS_URL=${JENKINS_URL:-http://localhost:8080/}
+      - COSIGN_PASSWORD=${COSIGN_PASSWORD}
+      - COSIGN_PRIVATE_KEY=/var/jenkins_home/cosign/cosign.key
+      - COSIGN_PUBLIC_KEY=/var/jenkins_home/cosign/cosign.pub
 
 
 volumes:

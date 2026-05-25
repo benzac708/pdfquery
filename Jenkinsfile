@@ -63,11 +63,22 @@ pipeline {
                 sh "docker tag ccep-rag:latest ghcr.io/benzac708/ccep-rag:latest"
                 sh "docker push ghcr.io/benzac708/ccep-rag:${IMAGE_TAG}"
                 sh "docker push ghcr.io/benzac708/ccep-rag:latest"
+                sh '''
+                  COSIGN_PASSWORD="$COSIGN_PASSWORD" \
+                  cosign sign --yes \
+                    --key "$COSIGN_PRIVATE_KEY" \
+                    -a git_commit=${IMAGE_TAG} \
+                    -a repository=benzac708/ccep-rag \
+                    ghcr.io/benzac708/ccep-rag:${IMAGE_TAG}
+                '''
             }
         }
 
         stage('Deploy') {
             steps {
+                sh '''
+                  cosign verify --key "$COSIGN_PUBLIC_KEY" ghcr.io/benzac708/ccep-rag:${IMAGE_TAG}
+                '''
                 sh 'IMAGE_TAG=${IMAGE_TAG} docker-compose -p ccep-rag -f /app/docker-compose.yml pull app'
                 sh 'IMAGE_TAG=${IMAGE_TAG} docker-compose -p ccep-rag -f /app/docker-compose.yml up -d --no-build'
             }
