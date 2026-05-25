@@ -24,7 +24,7 @@ pipeline {
 
         stage('Test') {
             steps {
-                sh 'uv pip install --system --break-system-packages -e .'
+                sh 'uv pip install --user -e .'
                 sh 'python3 -c "from ccep.cli import main; print(\\\"CLI imports OK\\\")"'
                 sh 'python3 -c "from ccep.embedder import Embedder; print(\\\"Embedder imports OK\\\")"'
             }
