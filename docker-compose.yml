@@ -9,6 +9,5 @@ services:
     env_file:
       - .env
     environment:
-      - EMBEDDING_PROVIDER=${EMBEDDING_PROVIDER:-local}
       - CHROMA_DIR=/app/chroma_db
       - UPLOAD_DIR=/app/uploads

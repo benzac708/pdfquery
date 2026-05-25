@@ -8,7 +8,7 @@
 
 ## Stack
 - Python 3.12, Streamlit, pdfplumber, Chroma DB
-- Embeddings: Cohere API (primary) or sentence-transformers (fallback)
+- Embeddings: Cohere API v3
 - LLM: Groq API (Llama 3.3 70B)
 - Docker, Jenkins (Jenkinsfile), k3s/Helm (optional)
 
@@ -22,7 +22,7 @@
 - Copy `.env.example` → `.env`
 - `GROQ_API_KEY` — from console.groq.com
 - `COHERE_API_KEY` — from dashboard.cohere.com (optional, falls back to local)
-- `EMBEDDING_PROVIDER=local` — zero-API-key mode (sentence-transformers)
+- Cohere is the only embedding provider — COHERE_API_KEY required
 
 ## Rules
 - No hardcoded paths — use `ccep/config.py` env vars
