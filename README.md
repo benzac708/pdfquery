@@ -1,58 +1,71 @@
 # CCEP-RAG
 
-> Content extraction + RAG query. Upload PDFs → ask questions. Built for Asseco recruitment.
+PDF question-answering app with a small CLI and Streamlit UI.
 
-## Quick Start
+## What it does
+
+- upload a PDF
+- extract text
+- chunk it
+- embed and store it in PostgreSQL + pgvector
+- ask questions with source snippets
+
+## Stack
+
+- Python 3.12
+- Streamlit
+- PostgreSQL + pgvector
+- Cohere embeddings
+- Groq for answer generation
+- Docker + Docker Compose
+- Jenkins CI/CD
+- GHCR image registry
+- Cloudflare Tunnel for public access
+
+## Local run
 
 ```bash
-git clone <repo-url>
-cd ccep-rag
-pip install -e .
 cp .env.example .env
-# Edit .env: set GROQ_API_KEY, optionally COHERE_API_KEY
-ccep ingest some-document.pdf
-ccep query "What does this document say?"
+# set GROQ_API_KEY and COHERE_API_KEY
+pip install -e .
+docker compose up -d db
+streamlit run app.py
 ```
 
-## Web UI
+## CLI
 
 ```bash
-streamlit run app.py
-# Open http://localhost:8501
+ccep ingest path/to/file.pdf
+ccep query "What does this say about X?"
 ```
 
 ## Docker
 
 ```bash
-docker compose up
-# Open http://localhost:8501
+docker compose up -d --build
 ```
 
-## Architecture
+## Environment
 
-```
-PDF → extract (pdfplumber) → chunk → embed (Cohere/local) → Chroma DB → retrieve → Groq LLM → answer
-```
+Required:
 
-## Tech Stack
+- `GROQ_API_KEY`
+- `COHERE_API_KEY`
 
-| Layer | Technology |
-|-------|-----------|
-| PDF extraction | pdfplumber |
-| Embeddings | Cohere Embed v3 or sentence-transformers (fallback) |
-| Vector DB | Chroma |
-| LLM | Groq (Llama 3.3 70B) |
-| Web UI | Streamlit |
-| CI/CD | Jenkins + GitHub Actions |
-| Container | Docker + docker-compose |
-| Orchestration | k3s + Helm (optional) |
+Optional:
 
-## DevOps
+- `DATABASE_URL`
+- `CHUNK_SIZE`
+- `CHUNK_OVERLAP`
+- `TOP_K`
 
-- `Jenkinsfile` — build, test, push to GHCR
-- `Dockerfile` + `docker-compose.yml` — one-command deploy
-- Helm chart at `helm/` — K8s deployment with rollback
+## CI/CD
 
-## Live Demo
-
-[https://rag.zachara.com](https://rag.zachara.com)
+- lint with Ruff
+- scan secrets with Gitleaks
+- test in a Python venv with `uv`
+- build and push a tagged image to GHCR
+- scan the image with Trivy
+- sign the image with cosign
+- deploy by pulling the exact image tag
+- run a post-deploy smoke test
