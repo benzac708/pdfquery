@@ -50,7 +50,7 @@ pipeline {
 
         stage('Docker Build & Push') {
             steps {
-                sh 'docker build -t pdfquery:${IMAGE_TAG} -t pdfquery:latest .'
+                sh 'DOCKER_BUILDKIT=1 docker build -t pdfquery:${IMAGE_TAG} -t pdfquery:latest .'
                 sh '''
                   docker run --rm \
                     -v /var/run/docker.sock:/var/run/docker.sock \
