@@ -2,11 +2,8 @@ FROM jenkins/jenkins:lts
 
 USER root
 
-RUN curl -fsSL https://download.docker.com/linux/static/stable/aarch64/docker-compose-linux-aarch64 -o /usr/local/bin/docker-compose && \
-    chmod +x /usr/local/bin/docker-compose
-
-RUN curl -fsSL https://github.com/docker/compose/releases/latest/download/docker-compose-linux-aarch64 -o /usr/local/lib/docker/cli-plugins/docker-compose && \
-    chmod +x /usr/local/lib/docker/cli-plugins/docker-compose
+RUN apt-get update && apt-get install -y --no-install-recommends docker-compose && \
+    rm -rf /var/lib/apt/lists/*
 
 USER jenkins
 

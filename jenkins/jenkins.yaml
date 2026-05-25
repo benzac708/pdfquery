@@ -44,4 +44,4 @@ jobs:
 
 unclassified:
   location:
-    url: ${JENKINS_URL}
+    url: https://jenkins.zachara.dev

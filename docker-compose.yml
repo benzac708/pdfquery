@@ -1,5 +1,6 @@
 services:
   app:
+    image: ghcr.io/benzac708/ccep-rag:latest
     build: .
     ports:
       - "8501:8501"
