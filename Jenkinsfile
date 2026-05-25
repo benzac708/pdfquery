@@ -26,6 +26,18 @@ pipeline {
             }
         }
 
+        stage('Secrets Scan') {
+            steps {
+                sh '''
+                  docker run --rm \
+                    -v "$PWD:/repo" \
+                    -w /repo \
+                    ghcr.io/gitleaks/gitleaks:latest \
+                    detect --no-banner --redact --source /repo
+                '''
+            }
+        }
+
         stage('Test') {
             steps {
                 sh 'rm -rf .venv'
@@ -39,6 +51,13 @@ pipeline {
         stage('Docker Build & Push') {
             steps {
                 sh 'docker build -t ccep-rag:${IMAGE_TAG} -t ccep-rag:latest .'
+                sh '''
+                  docker run --rm \
+                    -v /var/run/docker.sock:/var/run/docker.sock \
+                    -v "$HOME/.cache/trivy:/root/.cache/" \
+                    aquasec/trivy:latest \
+                    image --no-progress --severity HIGH,CRITICAL --exit-code 1 ccep-rag:${IMAGE_TAG}
+                '''
                 sh 'echo "$GHCR_TOKEN" | docker login ghcr.io -u benzac708 --password-stdin'
                 sh "docker tag ccep-rag:${IMAGE_TAG} ghcr.io/benzac708/ccep-rag:${IMAGE_TAG}"
                 sh "docker tag ccep-rag:latest ghcr.io/benzac708/ccep-rag:latest"
