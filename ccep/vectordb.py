@@ -48,6 +48,12 @@ class VectorDB:
                 })
         return docs
 
+    def clear(self):
+        try:
+            self._client.delete_collection("documents")
+        except ValueError:
+            pass
+
     def list_docs(self) -> list[str]:
         coll = self._collection()
         if coll.count() == 0:

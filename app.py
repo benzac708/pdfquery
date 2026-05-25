@@ -16,41 +16,42 @@ rag = RAG()
 
 if "messages" not in st.session_state:
     st.session_state.messages = []
+if "last_file" not in st.session_state:
+    st.session_state.last_file = None
 if "doc_ingested" not in st.session_state:
     st.session_state.doc_ingested = False
 
 uploaded_file = st.file_uploader("Upload a PDF", type=["pdf"])
 
-if uploaded_file and not st.session_state.doc_ingested:
-    status = st.status("Indexing PDF...", expanded=True)
+if uploaded_file and (uploaded_file.name != st.session_state.last_file or not st.session_state.doc_ingested):
+    st.session_state.messages = []
+    st.session_state.last_file = uploaded_file.name
+    bar = st.progress(0, text="📄 Extracting pages...")
 
     with tempfile.NamedTemporaryFile(delete=False, suffix=".pdf") as f:
         f.write(uploaded_file.getvalue())
         pdf_path = f.name
 
-    status.write("📄 Extracting pages...")
-    page_count = [0]
+    total_pages = [0]
     def track_page(n, total):
-        if page_count[0] != total:
-            page_count[0] = total
-        if n % max(1, total // 10) == 0 or n == total:
-            status.write(f"📄 Page {n}/{total}...")
+        total_pages[0] = total
+        bar.progress(int(n / total * 100), text=f"📄 Page {n}/{total}...")
     markdown = extract_pdf(pdf_path, on_page=track_page)
-    status.write(f"📄 Extracted {len(markdown.split())} words from {page_count[0]} pages")
+    words = len(markdown.split())
+    bar.progress(30, text=f"📄 {words} words from {total_pages[0]} pages")
 
-    status.write("✂️  Chunking...")
     doc_id = generate_id(markdown)
     chunks = chunk_markdown(markdown, doc_id)
-    status.write(f"✂️  {len(chunks)} chunks created")
+    bar.progress(60, text=f"✂️  {len(chunks)} chunks")
 
-    status.write("🧠 Embedding via Cohere + storing in vector DB...")
     db = VectorDB()
+    db.clear()
     db.ingest(chunks)
+    bar.progress(90, text="🧠 Embedded + stored in vector DB")
 
     Path(pdf_path).unlink(missing_ok=True)
     st.session_state.doc_ingested = True
-    status.write("✅ Done!")
-    status.update(state="complete", label=f"✅ Indexed: {len(chunks)} chunks")
+    bar.progress(100, text="✅ Done!")
     st.success(f"✅ Document indexed: {len(chunks)} chunks")
 
 for msg in st.session_state.messages:

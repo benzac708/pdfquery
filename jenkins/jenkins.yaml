@@ -1,0 +1,47 @@
+jenkins:
+  systemMessage: "CCEP-RAG CI/CD — Jenkins as Code\n"
+  numExecutors: 2
+  authorizationStrategy:
+    loggedInUsersCanDoAnything:
+      allowAnonymousRead: false
+  securityRealm:
+    local:
+      allowsSignup: false
+      users:
+        - id: admin
+          name: "Admin"
+          password: ${JENKINS_ADMIN_PASSWORD}
+
+credentials:
+  system:
+    domainCredentials:
+      - credentials:
+          - string:
+              id: GHCR_TOKEN
+              scope: GLOBAL
+              secret: ${GHCR_TOKEN}
+              description: "GitHub Container Registry token"
+
+jobs:
+  - script: >
+      pipelineJob('ccep-rag') {
+        definition {
+          cpsScm {
+            scm {
+              git {
+                remote { url('${GIT_REPO_URL}') }
+                branches('main')
+                scriptPath('Jenkinsfile')
+              }
+            }
+            lightweight()
+          }
+        }
+        triggers {
+          githubPush()
+        }
+      }
+
+unclassified:
+  location:
+    url: ${JENKINS_URL}

@@ -36,6 +36,7 @@ def cmd_ingest(pdf_path: str):
         pbar.update(1)
 
         db = VectorDB()
+        db.clear()
         db.ingest(doc.chunks)
         pbar.update(1)
 
