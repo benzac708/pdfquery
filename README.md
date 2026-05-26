@@ -29,9 +29,9 @@ PDF question-answering app with a small CLI and Streamlit UI.
 ```bash
 cp .env.example .env
 # set GROQ_API_KEY and COHERE_API_KEY
-pip install -e .
+uv venv .venv && uv pip install -e .
 docker compose up -d db
-streamlit run app.py
+source .venv/bin/activate && streamlit run app.py
 ```
 
 ## CLI

@@ -43,12 +43,12 @@ Replace ChromaDB with pgvector in the vectordb module, add Postgres container to
 
 ## Criteria
 
-- [ ] ISC-1: setup.py replaces chromadb with psycopg2-binary
+- [ ] ISC-1: pyproject.toml replaces chromadb with psycopg2-binary
 - [ ] ISC-2: config.py has DATABASE_URL env var, no CHROMA_DIR
 - [ ] ISC-3: vectordb.py rewritten to use pgvector SQL queries
 - [ ] ISC-4: docker-compose.yml has db service (pgvector) + app depends_on db
 - [ ] ISC-5: docker-compose volumes use pgdata, not chroma_db
-- [ ] ISC-6: Dockerfile builds without chromadb (pip install succeeds)
+- [ ] ISC-6: Dockerfile builds without chromadb (uv pip install succeeds)
 - [ ] ISC-7: .env.example has DATABASE_URL placeholder
 - [ ] ISC-8: AGENTS.md updated with new stack
 - [ ] ISC-9: Image built locally on VPS is <500MB

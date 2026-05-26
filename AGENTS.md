@@ -3,7 +3,8 @@
 ## Structure
 - `pdfquery/` — Python package: extractor, chunker, embedder, vectordb, rag, cli
 - `app.py` — Streamlit web GUI
-- `setup.py` — package install (`pip install -e .`)
+- `pyproject.toml` — package config (`uv pip install -e .`)
+- `uv` — fast Python package manager
 - `Dockerfile` + `docker-compose.yml` — containerized deployment
 
 ## Stack

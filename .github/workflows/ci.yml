@@ -20,7 +20,9 @@ jobs:
         with:
           python-version: "3.12"
 
-      - run: pip install -e .
+      - uses: astral-sh/setup-uv@v5
+
+      - run: uv venv .venv && uv pip install -e .
 
       - run: python3 -c "from pdfquery.cli import main; print('CLI imports OK')"
 
