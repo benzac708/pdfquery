@@ -47,10 +47,10 @@ jobs:
           }
         }
         triggers {
-          githubPush()
+          pollScm('* * * * *')
         }
       }
 
 unclassified:
   location:
-    url: https://jenkins.zachara.dev
+    url: http://localhost:8080
