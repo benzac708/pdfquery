@@ -11,7 +11,7 @@ RUN pip install --no-cache-dir uv
 ENV PYTHONDONTWRITEBYTECODE=1 \
     PYTHONUNBUFFERED=1
 
-COPY pyproject.toml README.md .
+COPY pyproject.toml README.md ./
 COPY pdfquery/ pdfquery/
 
 # uv is 3-5x faster than pip due to parallel resolution + Rust-native downloader
