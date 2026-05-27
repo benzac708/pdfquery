@@ -16,8 +16,8 @@ services:
     environment:
       - JENKINS_ADMIN_PASSWORD=${JENKINS_ADMIN_PASSWORD:-admin123}
       - GHCR_TOKEN=${GHCR_TOKEN}
-      - GIT_REPO_URL=${GIT_REPO_URL}
-      - JENKINS_URL=${JENKINS_URL:-http://localhost:8080/}
+      - GH_TOKEN=${GH_TOKEN}
+      - JENKINS_URL=${JENKINS_URL:-https://jenkins.zachara.dev}
       - COSIGN_PASSWORD=${COSIGN_PASSWORD}
       - COSIGN_PRIVATE_KEY=/var/jenkins_home/cosign/cosign.key
       - COSIGN_PUBLIC_KEY=/var/jenkins_home/cosign/cosign.pub

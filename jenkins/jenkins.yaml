@@ -21,6 +21,12 @@ credentials:
               scope: GLOBAL
               secret: ${GHCR_TOKEN}
               description: "GitHub Container Registry token"
+          - usernamePassword:
+              id: github-token
+              scope: GLOBAL
+              username: benzac708
+              password: ${GH_TOKEN}
+              description: "GitHub API token for cloning and webhooks"
 
 jobs:
   - script: >
@@ -29,13 +35,19 @@ jobs:
           cpsScm {
             scm {
               git {
-                remote { url('/app') }
+                remote {
+                  url('https://github.com/benzac708/pdfquery.git')
+                  credentials('github-token')
+                }
                 branches('main')
                 scriptPath('Jenkinsfile')
               }
             }
             lightweight()
           }
+        }
+        triggers {
+          githubPush()
         }
       }
 
