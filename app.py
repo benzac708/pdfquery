@@ -58,18 +58,21 @@ for msg in st.session_state.messages:
     with st.chat_message(msg["role"]):
         st.markdown(msg["content"])
 
-if prompt := st.chat_input("Ask a question about your document..."):
-    st.session_state.messages.append({"role": "user", "content": prompt})
-    with st.chat_message("user"):
-        st.markdown(prompt)
+if st.session_state.doc_ingested:
+    if prompt := st.chat_input("Ask a question about your document..."):
+        st.session_state.messages.append({"role": "user", "content": prompt})
+        with st.chat_message("user"):
+            st.markdown(prompt)
 
-    with st.chat_message("assistant"):
-        with st.spinner("Thinking..."):
-            result = rag.query(prompt)
-            st.markdown(result["answer"])
-            if result["sources"]:
-                with st.expander("📚 Sources"):
-                    for s in result["sources"]:
-                        st.markdown(f"**{s['heading']}**")
-                        st.markdown(f"> {s['text']}")
-            st.session_state.messages.append({"role": "assistant", "content": result["answer"]})
+        with st.chat_message("assistant"):
+            with st.spinner("Thinking..."):
+                result = rag.query(prompt)
+                st.markdown(result["answer"])
+                if result["sources"]:
+                    with st.expander("📚 Sources"):
+                        for s in result["sources"]:
+                            st.markdown(f"**{s['heading']}**")
+                            st.markdown(f"> {s['text']}")
+                st.session_state.messages.append({"role": "assistant", "content": result["answer"]})
+else:
+    st.chat_input("Upload a PDF above to start asking questions", disabled=True)
