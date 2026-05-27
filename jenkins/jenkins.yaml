@@ -47,7 +47,7 @@ jobs:
           }
         }
         triggers {
-          pollScm('* * * * *')
+          cron('* * * * *')
         }
       }
 
