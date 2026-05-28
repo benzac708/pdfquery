@@ -1,78 +1,128 @@
-# PDFQuery — RAG Question-Answering System
+# PDFQuery
 
-```json
-{"live": "https://rag.zachara.dev", "repo": "benzac708/pdfquery"}
-```
+Live: https://rag.zachara.dev
+Pipeline: Jenkins (push → Ruff → Gitleaks → test → build → Trivy → cosign → deploy → smoke)
 
-Upload a PDF, ask questions in natural language, get answers with source snippets.
+Local RAG: upload PDF → extract text → chunk → embed (Cohere) → pgvector → LLM answer (Groq).
 
-## Architecture
+## Commands
 
-```
-PDF upload → extract text → chunk → embed (Cohere) → pgvector → semantic search → LLM answer (Groq)
-```
-
-Split into three tiers:
-- **CLI** (Python) — ingest PDFs and query via terminal
-- **Web UI** (Streamlit) — drag-and-drop upload, chat interface
-- **CI/CD** (Jenkins) — automated build, scan, sign, deploy pipeline
-
-## Tech Stack
-
-| Layer | Tool | Usage |
-|-------|------|-------|
-| Language | Python 3.12 | App logic, CLI, Streamlit backend |
-| Embeddings | Cohere `embed-multilingual-v3.0` | Converts text chunks to 1024-dim vectors |
-| LLM | Groq `llama-3.3-70b-versatile` | Generates answer from retrieved context |
-| Database | PostgreSQL + pgvector (HNSW index) | Stores and searches document vectors |
-| Container | Docker + Docker Compose | Multi-stage build, pinned base image digests |
-| CI/CD | Jenkins (JCasC) | Auto-triggered on push — lint → scan → test → build → Trivy → cosign → deploy → smoke test |
-| Registry | GHCR | Signed OCI images with SBOM |
-| Security | Cloudflare Tunnel | Public ingress without open ports |
-
-## Pipeline (Jenkins)
-
-Every push to `main`:
-1. **Ruff** — lint check + auto-fix
-2. **Gitleaks** — secrets scan
-3. **pytest** — import verification
-4. **Docker build** — with SBOM generation
-5. **Trivy** — CRITICAL vulnerability scan (fail on any)
-6. **cosign sign** — image signing with key pair
-7. **cosign verify** — signature check before deploy
-8. **Deploy** — docker-compose pull + up on VPS
-9. **Smoke test** — HTTP health check (10 retries)
-
-## Quick Start
+### Local setup
 
 ```bash
+git clone https://github.com/benzac708/pdfquery && cd pdfquery
 cp .env.example .env
-# set GROQ_API_KEY and COHERE_API_KEY
-uv venv .venv && uv pip install -e .
+# set GROQ_API_KEY and COHERE_API_KEY in .env
+uv venv .venv && source .venv/bin/activate
+uv pip install -e .
+```
+
+### Database
+
+```bash
+# start PostgreSQL with pgvector
 docker compose up -d db
-source .venv/bin/activate && streamlit run app.py
+docker compose down -v    # delete everything + rebuild from scratch
+
+# connect and query
+docker exec -it pdfquery-db-1 psql -U ccep -d ccep
+# then: \dt, SELECT * FROM chunks LIMIT 5;
 ```
 
 ### CLI
 
 ```bash
-pdfquery ingest path/to/file.pdf
-pdfquery query "What does this say about X?"
+pdfquery ingest ~/some.pdf
+pdfquery query "co mówi o x?"
+```
+
+### Streamlit UI
+
+```bash
+streamlit run app.py
+# opens at localhost:8501
 ```
 
 ### Docker
 
 ```bash
-docker compose up -d --build
+docker compose up -d --build      # local full stack (db + app)
+docker compose logs -f app        # follow app logs
+docker compose ps                 # status
 ```
 
-## Environment
+### VPS deploy (manual, instead of Jenkins)
 
-| Variable | Required | Default |
-|----------|----------|---------|
-| `GROQ_API_KEY` | Yes | — |
-| `COHERE_API_KEY` | Yes | — |
-| `DATABASE_URL` | No | `postgresql+psycopg://...` |
-| `CHUNK_SIZE` | No | 500 |
-| `CHUNK_OVERLAP` | No | 50 |
-| `TOP_K` | No | 3 |
+```bash
+# on VPS:
+docker pull ghcr.io/benzac708/pdfquery:latest
+docker compose -p pdfquery -f /app/docker-compose.yml down
+docker compose -p pdfquery -f /app/docker-compose.yml up -d
+# check: curl http://127.0.0.1:8501/_stcore/health
+```
+
+### Jenkins
+
+```bash
+# local helpers in scripts/
+bash scripts/jenkins-status.sh          # last build status
+bash scripts/jenkins-tail.sh [build]    # console log
+bash scripts/jenkins-trigger.sh         # queue new build
+```
+
+Jenkins config in `jenkins/jenkins.yaml` (JCasC). Pipeline in `Jenkinsfile`.
+
+### Image sign (cosign)
+
+```bash
+# generate key pair
+cosign generate-key-pair
+# sign
+COSIGN_PASSWORD="" cosign sign --key cosign.key ghcr.io/benzac708/pdfquery:abc123
+# verify
+cosign verify --key cosign.pub ghcr.io/benzac708/pdfquery:abc123
+```
+
+### Security scan
+
+```bash
+# local trivy
+docker run --rm aquasec/trivy:latest image pdfquery:latest
+# gitleaks
+docker run --rm -v "$PWD:/repo" ghcr.io/gitleaks/gitleaks:latest detect --source /repo
+```
+
+### Troubleshooting
+
+```bash
+# app crash on start — check logs
+docker compose logs app
+
+# database not connecting
+docker compose logs db
+docker exec -it pdfquery-db-1 pg_isready -U ccep
+
+# chat stuck "upload document first" — session state issue
+# refresh browser, re-upload PDF
+
+# "Readme file does not exist" — Dockerfile missing pyproject dependency
+# COPY pyproject.toml README.md ./
+```
+
+## Project structure
+
+```
+pdfquery/             # Python package
+├── cli.py            # pdfquery ingest/query
+├── extractor.py      # pdfplumber, text extraction
+├── chunker.py        # split text into chunks
+├── embedder.py       # Cohere API → vectors
+├── vectordb.py       # PostgreSQL + pgvector SQL
+├── rag.py            # Groq API → answer from context
+├── config.py         # env vars
+└── models.py         # data classes
+app.py                # Streamlit UI
+Dockerfile            # multi-stage build
+docker-compose.yml    # app + db
+Jenkinsfile           # CI/CD pipeline
+```
