@@ -1,5 +1,6 @@
 services:
   db:
+    restart: unless-stopped
     image: pgvector/pgvector:0.8.0-pg17
     environment:
       POSTGRES_USER: ccep
@@ -12,13 +13,25 @@ services:
       interval: 5s
       timeout: 5s
       retries: 5
+    deploy:
+      resources:
+        limits:
+          memory: 512M
+        reservations:
+          memory: 256M
+    networks:
+      - internal
 
   app:
+    restart: unless-stopped
     image: ghcr.io/benzac708/pdfquery:${IMAGE_TAG:-latest}
+    pull_policy: ${PULL_POLICY:-missing}
     ports:
-      - "8501:8501"
+      - "127.0.0.1:8501:8501"
     volumes:
-      - ./uploads:/app/uploads
+      - uploads:/app/uploads
+    tmpfs:
+      - /tmp:noexec,nosuid,size=128M
     env_file:
       - .env
     depends_on:
@@ -27,6 +40,40 @@ services:
     environment:
       - DATABASE_URL=postgresql://ccep:ccep@db:5432/ccep
       - UPLOAD_DIR=/app/uploads
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8501/_stcore/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 15s
+    deploy:
+      resources:
+        limits:
+          memory: 1G
+        reservations:
+          memory: 512M
+    read_only: true
+    cap_drop:
+      - ALL
+    security_opt:
+      - no-new-privileges:true
+    networks:
+      - internal
+    labels:
+      app.name: "pdfquery"
+      app.environment: "${ENVIRONMENT:-production}"
+      app.managed-by: "docker-compose"
+      app.repository: "github.com/benzac708/pdfquery"
+      app.git-sha: "${GIT_SHA:-}"
 
 volumes:
   pgdata:
+  uploads:
+
+networks:
+  internal:
+    driver: bridge
+    ipam:
+      driver: default
+      config:
+        - subnet: 172.20.0.0/24
