@@ -1,5 +1,5 @@
 jenkins:
-  systemMessage: "CCEP-RAG CI/CD — Jenkins as Code\n"
+  systemMessage: "CCEP-RAG CI/CD - Jenkins as Code\n"
   numExecutors: 2
   authorizationStrategy:
     loggedInUsersCanDoAnything:

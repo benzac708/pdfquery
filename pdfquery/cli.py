@@ -40,7 +40,7 @@ def cmd_ingest(pdf_path: str):
         db.ingest(doc.chunks)
         pbar.update(1)
 
-    print(f"✅ Done — {len(doc.chunks)} chunks indexed")
+    print(f"✅ Done - {len(doc.chunks)} chunks indexed")
 
     uploads = Path(UPLOAD_DIR)
     uploads.mkdir(parents=True, exist_ok=True)

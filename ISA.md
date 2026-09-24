@@ -33,7 +33,7 @@ A sub-500MB Docker image, native ARM64 CI/CD via self-hosted runner, pgvector-ba
 
 ## Constraints
 
-- ARM64 VPS (Hetzner) — no x86 emulation in production
+- ARM64 VPS (Hetzner) - no x86 emulation in production
 - GitHub-hosted runner for lint/test (AMD64)
 - Self-hosted runner for build + deploy (ARM64)
 
@@ -70,11 +70,11 @@ Replace ChromaDB with pgvector in the vectordb module, add Postgres container to
 
 | name | satisfies | depends_on | parallelizable |
 |------|-----------|------------|---------------|
-| F1: pgvector vectordb | ISC-1..3, ISC-20 | — | no |
+| F1: pgvector vectordb | ISC-1..3, ISC-20 | - | no |
 | F2: docker-compose pgvector | ISC-4..5, ISC-21 | F1 | no |
-| F3: env/config updates | ISC-2, ISC-7..8 | — | yes (with F2) |
+| F3: env/config updates | ISC-2, ISC-7..8 | - | yes (with F2) |
 | F4: build & verify locally | ISC-9..12 | F1..3 | no |
-| F5: self-hosted runner | ISC-15 | — | yes |
+| F5: self-hosted runner | ISC-15 | - | yes |
 | F6: CI/CD pipeline rewrite | ISC-13..14, ISC-16..19 | F5 | no |
 
 ## Decisions
